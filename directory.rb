@@ -1,13 +1,15 @@
 @students = [] #empty array accessible to all methods
 
+#main program loop, gives menu options then runs selection
 def interactive_menu
   loop do
     print_menu
     #get user input
-    process(gets.chomp)
+    process(STDIN.gets.chomp)
   end
 end
 
+#prints menu options
 def print_menu
   puts "What would you like to do?"
   puts "1. Input the students"
@@ -17,6 +19,7 @@ def print_menu
   puts "9. Exit"
 end
 
+#runs method based on item chosen from menu
 def process(selection)
   case selection
   when "1"
@@ -38,17 +41,18 @@ def input_students
   puts "Please enter the names of the students"
   puts "To finish, hit return/enter twice"
   # lets user input name of student
-  name = gets.chomp
+  name = STDIN.gets.chomp
   # if name is not empty, will do this
   while !name.empty? do
     # add name with key name and november with key cohort to student hash
     @students << {name: name, cohort: :november}
     #counts the new total of students after one is added
     puts "Now we have #{@students.count} students"
-    name = gets.chomp
+    name = STDIN.gets.chomp
   end
 end
 
+#prints list of students with header and footer
 def show_students
   print_header
   print_student_list
@@ -83,8 +87,10 @@ def save_students
   file.close
 end
 
-def load_students
-  file = File.open("students.csv", "r")
+def load_students(filename = students.csv)
+  #open file with read permissions
+  file = File.open(filename, "r")
+  #interate over lines in csv adding them to students hash
   file.readlines.each do |line|
     name, cohort = line.chomp.split(",")
     @students << {name: name, cohort: cohort.to_sym}
@@ -92,4 +98,20 @@ def load_students
   file.close
 end
 
+def check_for_file
+  #load first argument from command line
+  filename = ARGV.first
+  #exit method if an argument given
+  return if filename.nil?
+  #load students from csv if argument given
+  if File.exists?(filename)
+    load_students(filename)
+    puts "Loaded #{@students.count} students from #{filename}"
+  #exit program if filename given does not exist
+  else
+    puts "Sorry, #{filename} does not exist."
+    exit
+  end
+end
+check_for_file
 interactive_menu
